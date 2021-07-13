@@ -7,4 +7,6 @@ if __name__ == '__main__':
 
     Automater = automater.Connector()
     Automater.connect_driver()
-    Automater.get_bank_info(bank_user, bank_password)
+    balance = Automater.get_bank_info(bank_user, bank_password)
+    print(f'balance: {balance}')
+    Automater.driver.close()
