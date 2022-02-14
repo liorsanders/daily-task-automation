@@ -1,4 +1,4 @@
-DRIVER_PATH = r'C:\Users\user\Documents\webdrivers\chromedriver.exe'
+DRIVER_PATH = r'/home/mango123/Downloads/chromedriver/chromedriver'
 BANK_LINK = 'https://login.bankhapoalim.co.il/ng-portals/auth/en/'
 BANK_USERNAME_SELECTOR = '#userCode'
 BANK_PASSWORD_SELECTOR = '#password'
