@@ -8,6 +8,8 @@ import time
 import os
 
 def get_old_balance():
+    if not os.path.exists(f'./{constants.CONFIG_NAME}'):
+        return None
     line = open(constants.CONFIG_NAME).readlines()[0].rstrip()
     try:
         return float(line[line.index('=')+1:])
@@ -15,7 +17,8 @@ def get_old_balance():
     except Exception:
         print('config file error')
 
-def send_mail(balance):
+def send_mail(balance, password):
+    print('sending mail')
     msg = MIMEText(f'''
     your new balance is: {balance}
     {abs(get_old_balance() - balance)} {'more' if get_old_balance() < balance else 'less'} than the old balance
@@ -25,7 +28,8 @@ def send_mail(balance):
     msg['Subject']="updated account ballance"
 
     s = smtplib.SMTP_SSL(host=constants.MAIL_SERVER_EMAIL, port=constants.MAIL_SERVER_PORT)
-    s.login(constants.EMAIL, getpass.getpass(f'enter password for {constants.EMAIL}: '))
+    s.login(constants.EMAIL, password)
+    print(f'logged in to: {constants.EMAIL}, {password}')
     s.sendmail(constants.EMAIL, constants.EMAIL, msg.as_string())
     s.quit()
 
@@ -43,19 +47,19 @@ def update_config(new_balance):
         config.write('\n'.join(lines))
 
 def main():
+    user = input('enter bank hapoalim username: ')
+    bank_password = getpass.getpass(prompt='enter bank hapoalim password: ')
+    email_password = getpass.getpass(prompt=f'enter {constants.EMAIL}\'s password: ')
     while True:
-        bank_user = input('enter bank hapoalim username: ')
-        bank_password = getpass.getpass(prompt='enter bank hapoalim password: ')
         Automater = automater.Connector()
         print('connected')
         Automater.connect_driver()
-        balance = Automater.get_bank_info(bank_user, bank_password)
+        balance = Automater.get_bank_info(user, bank_password)
         old_balance = get_old_balance()
-        if old_balance != balance:
-            if old_balance != constants.DEFAULT_BALANCE: # default balance
-                send_mail(balance)
-                print('email sent')
-            update_config(balance)
+        update_config(balance)
+        if old_balance != constants.DEFAULT_BALANCE: # default balance
+            send_mail(balance, email_password)
+            print('email sent')
         Automater.driver.close()
         time.sleep(constants.HOUR)
 
